@@ -26,7 +26,7 @@
                 <input type="range" id="playbackSlider" min="0" value="0" class="custom-range"/>
                 <button id="stepBackOne" class="btn btn-light">&lt;</button>
                 <button id="stepForwardOne" class="btn btn-light">&gt;</button>
-                <button id="clearButton" class="btn btn-danger">Clear</button>
+                <button id="restartButton" class="btn btn-danger">Restart</button>
             </div>
         </div>
         <script src="smallEvents.js"></script>
@@ -45,7 +45,7 @@
                 //get the controls
                 const stepBackOne = document.getElementById("stepBackOne");
                 const stepForwardOne = document.getElementById("stepForwardOne");
-                const clearButton = document.getElementById("clearButton");
+                const restartButton = document.getElementById("restartButton");
                 const playbackSlider = document.getElementById("playbackSlider");
                 //set the max slider value
                 playbackSlider.setAttribute("max", eventsObject.events.length);
@@ -59,14 +59,18 @@
                     step(1);
                 });
 
-                clearButton.addEventListener("click", event => {
+                restartButton.addEventListener("click", event => {
                     //get the playback window div
                     const playbackWindow = document.getElementById('playbackWindow');
                     
+                    //reset the next event and the slider
+                    nextEventPosition = 0;
+                    playbackSlider.value = 0;
+
                     //for measuring which approach is faster
                     //get the starting timestamp
                     const t0 = performance.now();
-                    
+
                     //completely clear the div
                     playbackWindow.innerHTML = '';
 
