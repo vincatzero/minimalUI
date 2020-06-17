@@ -32,7 +32,7 @@
         <div class="container-fluid">
             <!--Create Tabs-->
             <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'Playback')" id="defaultOpen">Playback</button>
+            <button class="tablinks" onclick="openTab(event, 'Playback')">Playback</button>
             </div>
 
             <div id="Playback" class="tabcontent">
@@ -55,11 +55,6 @@
             }
             </script>
 
-            <script>
-            // Get the element with id="defaultOpen" and click on it
-            document.getElementById("defaultOpen").click();
-            </script>
-
             <!-- minimal controls -->
             <div id="playbackControls">
                 <input type="range" id="playbackSlider" min="0" value="0" class="custom-range"/>
@@ -78,6 +73,7 @@
             const editor = ace.edit("playbackWindow");
             editor.setTheme("ace/theme/monokai");
             editor.setFontSize(20);
+            editor.setShowPrintMargin(false);
             editor.session.setMode("ace/mode/javascript");
             editor.setShowPrintMargin(false);
         </script>
