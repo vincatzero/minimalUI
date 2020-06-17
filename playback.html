@@ -10,7 +10,7 @@
         <style>
             #playbackWindow {
                 height: calc(100vh - 100px);
-                overflow-y: scroll;
+                /* overflow-y: scroll; */
             }
         </style>
     <title>Experimental Playback UI</title>
@@ -18,9 +18,7 @@
     <body>
         <div class="container-fluid">
             <!-- code window of some kind -->
-            <div id="playbackWindow" class="border">
-                Code Here
-            </div>
+            <div id="playbackWindow"></div>
             <!-- minimal controls -->
             <div id="playbackControls">
                 <input type="range" id="playbackSlider" min="0" value="0" class="custom-range"/>
@@ -29,10 +27,59 @@
                 <button id="restartButton" class="btn btn-danger">Restart</button>
             </div>
         </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js" type="text/javascript" charset="utf-8"></script>
         <script src="smallEvents.js"></script>
         <!-- <script src="mediumEvents.js"></script> -->
         <!-- <script src="largeEvents.js"></script> -->
+
         <script>
+            //make the div with the id, editor, an ace editor
+            const editor = ace.edit("playbackWindow");
+            editor.setTheme("ace/theme/monokai");
+            editor.setFontSize(20);
+            editor.session.setMode("ace/mode/javascript");
+        </script>
+
+
+
+        <script>
+
+            //import the Range type from ace (don't use the built in browser Range type)
+            const Range = ace.require('ace/range').Range;
+
+            //holds the ids of all the markers (highlights)
+            let allHighlights = [];
+
+            //indicates whether the change can from the textarea not editing in ace
+            let changeOutsideEditor = false;
+
+            /*
+             * Create a highlight (ace calls these 'markers')
+             */
+            function addHighlight(startRow, startColumn, endRow, endColumn) {
+                //clear any existing highlights
+                clearHighlights();
+
+                //create a marker in the right range
+                const marker = editor.getSession().addMarker(new Range(startRow, startColumn, endRow, endColumn), 'newText', 'text', true);
+                
+                //add the id of the new marker so it can be cleared later
+                allHighlights.push(marker);
+            }
+
+             /*
+             * Function to clear all the highlights.
+             */
+            function clearHighlights() {
+                //go through the collection of marker ids
+                for(let i = 0;i < allHighlights.length;i++) {
+                    //remove the marker
+                    editor.getSession().removeMarker(allHighlights[i]);
+                }
+                //empty the collection of marker ids
+                allHighlights = [];
+            }
+            
             //the position of the event to play next in the forward direction
             //this refers to an object loaded in the script above, 'eventsObject'
             //which has a property called 'events' which is an array of storyteller
