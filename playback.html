@@ -12,25 +12,51 @@
                 height: calc(100vh - 100px);
                 /* overflow-y: scroll; */
             }
+
+            .highlight {
+                position:absolute;
+                z-index:20; /* place in a layer above anything with a lower z-index */
+                background-color:limegreen;
+                opacity: 20%;
+            }
         </style>
+
     <title>Experimental Playback UI</title>
     </head>
     <body>
         <div class="container-fluid">
             <!-- code window of some kind -->
-            <div id="playbackWindow"></div>
+            <div id="tabContainer">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="active">
+						<a class="active" href="#codeEditorTab" id="codeEditorAnchor" role="tab" data-toggle="tab">
+                            <p id="filename">filename:test.js</p>                
+                      
+                        </a>
+                    </li>
+                   
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="codeEditorTab">
+                        <div id="playbackWindow"></div>
+
+                    </div>
+
+                </div>
+            </div>
             <!-- minimal controls -->
             <div id="playbackControls">
                 <input type="range" id="playbackSlider" min="0" value="0" class="custom-range"/>
                 <button id="stepBackOne" class="btn btn-light">&lt;</button>
                 <button id="stepForwardOne" class="btn btn-light">&gt;</button>
                 <button id="restartButton" class="btn btn-danger">Restart</button>
+                <button id="highlightButton" class="btn btn-success">Highlight Selection</button>
             </div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js" type="text/javascript" charset="utf-8"></script>
-        <script src="smallEvents.js"></script>
+        <!-- <script src="smallEvents.js"></script> -->
         <!-- <script src="mediumEvents.js"></script> -->
-        <!-- <script src="largeEvents.js"></script> -->
+        <script src="largeEvents.js"></script>
 
         <script>
             //make the div with the id, editor, an ace editor
@@ -38,6 +64,7 @@
             editor.setTheme("ace/theme/monokai");
             editor.setFontSize(20);
             editor.session.setMode("ace/mode/javascript");
+            editor.setShowPrintMargin(false);
         </script>
 
 
@@ -61,7 +88,7 @@
                 clearHighlights();
 
                 //create a marker in the right range
-                const marker = editor.getSession().addMarker(new Range(startRow, startColumn, endRow, endColumn), 'newText', 'text', true);
+                const marker = editor.getSession().addMarker(new Range(startRow, startColumn, endRow, endColumn), 'highlight', 'text', true);
                 
                 //add the id of the new marker so it can be cleared later
                 allHighlights.push(marker);
@@ -94,6 +121,7 @@
                 const stepForwardOne = document.getElementById("stepForwardOne");
                 const restartButton = document.getElementById("restartButton");
                 const playbackSlider = document.getElementById("playbackSlider");
+                const highlightButton = document.getElementById("highlightButton");
                 //set the max slider value
                 playbackSlider.setAttribute("max", eventsObject.events.length);
                 
@@ -143,6 +171,16 @@
                 });
             });
 
+            highlightButton.addEventListener("click", event =>{
+                //get the selected code
+                const selection = editor.getSession().getSelection().getRange();
+                // const selection = editor.getSession().getSelection().getAllRanges();
+
+                //add the highlight to the selected code
+                addHighlight(selection.start.row, selection.start.column, selection.end.row, selection.end.column);
+
+            });
+
             function step(numSteps) {
                 //move forward
                 if(numSteps > 0) {
@@ -160,23 +198,38 @@
                 if(nextEventPosition < eventsObject.events.length) {
                     //holds the next event to animate
                     let nextEvent;
-
+                
                     //get a reference to the playback window
                     const playbackWindow = document.getElementById('playbackWindow');
+
+                    const t0 = performance.now();
+
 
                     //go through the requested number of steps
                     for(let i = 0;i < numSteps;i++) {
                         //grab the next event to animate
                         nextEvent = eventsObject.events[nextEventPosition];
-                        
-                        //create a new span and br
-                        const newEventSpan = document.createElement('span');
-                        newEventSpan.setAttribute('id', nextEvent.id);
-                        newEventSpan.innerHTML = `Playing: ${getEventDescription(nextEvent)}`;
-                        playbackWindow.append(newEventSpan);
-                        //now a br
-                        playbackWindow.append(document.createElement('br'));
+                        if (nextEvent.type == "INSERT"){
+                            if(nextEvent.character.length == 1){
+                                editor.getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, nextEvent.character);
+                            }
+                            else if (nextEvent.character == "NEWLINE"){
+                                editor.getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, '\n');
+                            }
 
+                        }
+                        else if (nextEvent.type == "DELETE"){
+                            if (nextEvent.character == "NEWLINE"){
+                                editor.getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber, 0));
+                            }
+                            else if (nextEvent.character.length == 1){
+                                editor.getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber-1, nextEvent.column));
+                            }
+                        }
+
+                        
+
+                        
                         //move the next event
                         nextEventPosition++;
 
@@ -185,6 +238,9 @@
                             break;
                         }
                     }
+
+                    const t1 = performance.now();
+                    console.log(`step forward took: ${t1-t0} ms`);
                 }
             }
 
@@ -207,13 +263,21 @@
                         //grab the next event to de-animate
                         nextEvent = eventsObject.events[nextEventPosition];
 
-                        //create a new span and br
-                        const newEventSpan = document.createElement('span');
-                        newEventSpan.setAttribute('id', nextEvent.id);
-                        newEventSpan.innerHTML = `Undoing: ${getEventDescription(nextEvent)}`;
-                        playbackWindow.append(newEventSpan);
-                        //now a br
-                        playbackWindow.append(document.createElement('br'));
+                        if (nextEvent.type == "INSERT"){
+                            if (nextEvent.character == "NEWLINE"){
+                                editor.getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber, 0));
+                            }
+                            else if (nextEvent.character.length == 1){
+                                editor.getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber-1, nextEvent.column));
+                            }
+                        }
+                        else if (nextEvent.type == "DELETE"){
+                            if(nextEvent.character.length == 1){
+                                editor.getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, nextEvent.character);
+                            }
+                            else if (nextEvent.character == "NEWLINE"){
+                                editor.getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, '\n');
+                            }                        }
 
                         //move to the previous event
                         nextEventPosition--;
