@@ -12,20 +12,60 @@
                 height: calc(100vh - 100px);
                 /* overflow-y: scroll; */
             }
+            /* Create an active/current tablink class */
+            .tab button.active {
+            background-color: #ccc;
+            }
+            /* Style the tab content */
+            .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+            }
         </style>
     <title>Experimental Playback UI</title>
     </head>
+    <h5>Storyteller</h5>
     <body>
         <div class="container-fluid">
-            <!-- code window of some kind -->
-            <div id="playbackWindow"></div>
+            <!--Create Tabs-->
+            <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'Editor')">Editor</button>
+            <button class="tablinks" onclick="openTab(event, 'Playback')">Playback</button>
+            </div>
+
+            <div id="Editor" class="tabcontent">
+                <div id="playbackWindow"></div>
+            </div>
+
+            <div id="Playback" class="tabcontent">
+                <div id="playbackWindow"></div>
+            </div>
+
+            <script>
+            function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+            }
+            </script>
+
             <!-- minimal controls -->
             <div id="playbackControls">
                 <input type="range" id="playbackSlider" min="0" value="0" class="custom-range"/>
                 <button id="stepBackOne" class="btn btn-light">&lt;</button>
                 <button id="stepForwardOne" class="btn btn-light">&gt;</button>
                 <button id="restartButton" class="btn btn-danger">Restart</button>
-            </div>
+            </div>    
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js" type="text/javascript" charset="utf-8"></script>
         <script src="smallEvents.js"></script>
@@ -37,6 +77,7 @@
             const editor = ace.edit("playbackWindow");
             editor.setTheme("ace/theme/monokai");
             editor.setFontSize(20);
+            editor.setShowPrintMargin(false);
             editor.session.setMode("ace/mode/javascript");
         </script>
 
