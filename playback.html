@@ -91,8 +91,7 @@
              * Create a highlight (ace calls these 'markers')
              */
             function addHighlight(startRow, startColumn, endRow, endColumn) {
-                //clear any existing highlights
-                clearHighlights();
+            
 
                 //create a marker in the right range
                 const marker = editor.getSession().addMarker(new Range(startRow, startColumn, endRow, endColumn), 'highlight', 'text', true);
@@ -180,11 +179,18 @@
 
             highlightButton.addEventListener("click", event =>{
                 //get the selected code
-                const selection = editor.getSession().getSelection().getRange();
-                // const selection = editor.getSession().getSelection().getAllRanges();
+               // const selection = editor.getSession().getSelection().getRange();
+                 const selections = editor.getSession().getSelection().getAllRanges();
 
-                //add the highlight to the selected code
-                addHighlight(selection.start.row, selection.start.column, selection.end.row, selection.end.column);
+                //clear any existing highlights
+                clearHighlights();
+                
+                for (i in selections)
+                {
+                    //add the highlight to the selected code
+                    addHighlight(selections[i].start.row, selections[i].start.column, selections[i].end.row, selections[i].end.column);
+                }
+
 
             });
 
