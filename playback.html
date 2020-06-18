@@ -75,7 +75,7 @@
             editor.setReadOnly(true);
             editor.setTheme("ace/theme/monokai");
             editor.setFontSize(16);
-            editor.session.setMode("ace/mode/javascript");
+            //editor.session.setMode("ace/mode/javascript");
             editor.setShowPrintMargin(false);
             allEditors.push(editor);
         </script>
@@ -237,6 +237,17 @@
                         {
                             if (numFilesCreated == 0)
                             {
+                                let filePath = nextEvent.filePath;
+                                let mode;
+                                
+                                if (filePath.endsWith(".js")){
+                                    mode = "ace/mode/javascript";
+                                }
+                                else if (filePath.endsWith("cpp")){
+                                    mode = "ace/mode/c_cpp"
+                                }
+
+                                editor.session.setMode(mode);
                                 document.getElementById("FirstTabLabel").innerHTML = nextEvent.filePath;
                             }
 
