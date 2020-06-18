@@ -23,12 +23,6 @@
             border: 1px solid #ccc;
             border-top: none;
             }
-            .highlight {
-                position:absolute;
-                z-index:20; /* place in a layer above anything with a lower z-index */
-                background-color:limegreen;
-                opacity: 20%;
-            }
         </style>
 
     <title>Experimental Playback UI</title>
@@ -142,8 +136,6 @@
                 });
 
                 restartButton.addEventListener("click", event => {
-                    //get the playback window div
-                    const playbackWindow = document.getElementById('playbackWindow');
                     
                     //reset the next event and the slider
                     nextEventPosition = 0;
@@ -153,13 +145,9 @@
                     //get the starting timestamp
                     const t0 = performance.now();
 
-                    //completely clear the div
-                    playbackWindow.innerHTML = '';
-
-                    //another way of clearing the elements in a div
-                    // while (playbackWindow.firstChild) {
-                    //     playbackWindow.removeChild(playbackWindow.firstChild);
-                    // }
+                    let lastRow = editor.getSession().getLength();
+                    let lastCol = editor.getSession().getRowLength(lastRow)-1;
+                    editor.getSession().remove(new Range(0,0,lastRow,lastCol));
 
                     //get the ending timestamp
                     const t1 = performance.now();
