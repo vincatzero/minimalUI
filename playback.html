@@ -41,12 +41,12 @@
             <div class="tab">
                 <ul class="nav nav-tabs" id="tabsList">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#Playback" role="tab" data-toggle="tab"><p id="FirstTabLabel"></p></a>
+                        <a class="nav-link active" href="#Playback" role="tab" data-toggle="tab" id="FirstTabLabel"></a>
                     </li>
-                  </ul>
+                </ul>
             </div>
 
-            <div class="tab-content">
+            <div class="tab-content" id="tabContent">
                 <div id="Playback">
                     <div id="playbackWindow"></div>
                 </div>
@@ -66,11 +66,13 @@
 
         <!-- <script src="smallEvents.js"></script> -->
         <!-- <script src="mediumEvents.js"></script> -->
-        <script src="largeEvents.js"></script>
+        <!-- <script src="largeEvents.js"></script> -->
+        <!-- <script src="largeMultiFileEvents.js"></script> -->
+        <script src="smallMultiFileEvents.js"></script>
 
         <script>
 
-            var allEditors = [];
+            var allEditors = {};
 
             //make the div with the id, editor, an ace editor
             const editor = ace.edit("playbackWindow");
@@ -78,7 +80,23 @@
             editor.setTheme("ace/theme/monokai");
             editor.setFontSize(16);
             editor.setShowPrintMargin(false);
-            allEditors.push(editor);
+            //allEditors.push(editor);
+
+            function CreateAceEditor(codeDiv, filePath, fileId)
+            {
+                const tempEditor = ace.edit(codeDiv);
+                editor.setReadOnly(true);
+                editor.setTheme("ace/theme/monokai");
+                editor.setFontSize(16);
+                editor.setShowPrintMargin(false);
+
+                setEditorMode(tempEditor, filePath);
+                
+                allEditors[fileId] = tempEditor;
+
+                return allEditors[fileId];
+            }
+
         </script>
 
         <script>
@@ -132,6 +150,9 @@
                 const restartButton = document.getElementById("restartButton");
                 const playbackSlider = document.getElementById("playbackSlider");
                 const highlightButton = document.getElementById("highlightButton");
+
+                const tabsList = document.getElementById("tabsList");
+                const tabContent = document.getElementById("tabContent");
                 //set the max slider value
                 playbackSlider.setAttribute("max", eventsObject.events.length);
                 
@@ -217,19 +238,19 @@
                         nextEvent = eventsObject.events[nextEventPosition];
                         if (nextEvent.type == "INSERT"){
                             if(nextEvent.character.length == 1){
-                                editor.getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, nextEvent.character);
+                                allEditors[nextEvent.fileId].getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, nextEvent.character);
                             }
                             else if (nextEvent.character == "NEWLINE"){
-                                editor.getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, '\n');
+                                allEditors[nextEvent.fileId].getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, '\n');
                             }
 
                         }
                         else if (nextEvent.type == "DELETE"){
                             if (nextEvent.character == "NEWLINE"){
-                                editor.getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber, 0));
+                                allEditors[nextEvent.fileId].getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber, 0));
                             }
                             else if (nextEvent.character.length == 1){
-                                editor.getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber-1, nextEvent.column));
+                                allEditors[nextEvent.fileId].getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber-1, nextEvent.column));
                             }
                         }
                         else if (nextEvent.type == 'CREATE FILE')      
@@ -237,9 +258,44 @@
                             if (numFilesCreated == 0)
                             {
                                 let filePath = nextEvent.filePath;
-                                setMode(editor, filePath);
+                                setEditorMode(editor, filePath);
+                                allEditors[nextEvent.fileId] = editor;
 
                                 document.getElementById("FirstTabLabel").innerHTML = filePath;
+                            }
+                            else
+                            {
+                                //Create a new tab
+                                const newListItem = document.createElement('li');
+                                newListItem.classList.add("nav-item");
+                                newListItem.id = nextEvent.fileId;
+                                
+                                const newLinkTag = document.createElement('a');
+                                newLinkTag.classList.add("nav-link");
+                                //newLinkTag.classList.add("active");
+                                newLinkTag.id = `${nextEvent.fileId}-text`
+
+                                newLinkTag.href = `#${nextEvent.fileId}-content`;
+                                newLinkTag.setAttribute("role", "tab");
+                                newLinkTag.setAttribute("data-toggle", "tab");
+
+                                newLinkTag.innerText = nextEvent.filePath;
+
+                                newListItem.appendChild(newLinkTag);
+                                tabsList.appendChild(newListItem);
+
+                                //create new divs to go in the new tab
+                                const contentPanel = document.createElement('div');
+                                const codeDiv = document.createElement('div');
+
+                                contentPanel.id = `${nextEvent.fileId}-content`;
+                                codeDiv.id = `${nextEvent.fileId}-code`
+
+                                contentPanel.appendChild(codeDiv);
+                                tabContent.appendChild(contentPanel);
+
+                                //point an editor to the new div
+                                CreateAceEditor(codeDiv, nextEvent.filePath, nextEvent.fileId);
                             }
 
                             numFilesCreated++;
@@ -312,7 +368,7 @@
             }
 
             //Sets the Ace editor to the correct mode to set correct syntax highlighting
-            function setMode(thisEditor, filePath){
+            function setEditorMode(thisEditor, filePath){
 
                 let modelist = ace.require("ace/ext/modelist");
                 let mode = modelist.getModeForPath(filePath).mode;

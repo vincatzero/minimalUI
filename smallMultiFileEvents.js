@@ -1,0 +1,161 @@
+//global object with events
+const eventsObject = {
+    "events": [
+        { 
+            "id": "ev-0", 
+            "timestamp": 1592438510253, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 0, 
+            "type": "CREATE DIRECTORY", 
+            "directoryId": "dirId-0", 
+            "directoryPath": "/", 
+            "parentDirectoryId": null 
+        }, 
+        { 
+            "id": "ev-1", 
+            "timestamp": 1592438516496, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 1, 
+            "type": "CREATE FILE", 
+            "fileId": "fileId-0", 
+            "filePath": "/abc.txt", 
+            "parentDirectoryId": "dirId-0" 
+        }, 
+        { 
+            "id": "ev-2", 
+            "timestamp": 1592438517429, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 2, 
+            "type": "INSERT", 
+            "fileId": "fileId-0", 
+            "character": "a", 
+            "previousNeighborId": null, 
+            "lineNumber": 1, 
+            "column": 1, 
+            "pastedEventId": null 
+        }, 
+        { 
+            "id": "ev-3", 
+            "timestamp": 1592438517520, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 3, 
+            "type": "INSERT", 
+            "fileId": "fileId-0", 
+            "character": "b", 
+            "previousNeighborId": "ev-2", 
+            "lineNumber": 1, 
+            "column": 2, 
+            "pastedEventId": null 
+        },
+        { 
+            "id": "ev-4", 
+            "timestamp": 1592438517667, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 4, 
+            "type": "INSERT", 
+            "fileId": "fileId-0", 
+            "character": "c", 
+            "previousNeighborId": "ev-3", 
+            "lineNumber": 1, 
+            "column": 3, 
+            "pastedEventId": null },
+        { 
+            "id": "ev-5", 
+            "timestamp": 1592438525124, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 5, 
+            "type": "CREATE FILE", 
+            "fileId": "fileId-1", 
+            "filePath": "/123.txt", 
+            "parentDirectoryId": "dirId-0" 
+        },
+        { 
+            "id": "ev-6", 
+            "timestamp": 1592438526393, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 6, 
+            "type": "INSERT", 
+            "fileId": "fileId-1", 
+            "character": "1", 
+            "previousNeighborId": null, 
+            "lineNumber": 1, 
+            "column": 1, 
+            "pastedEventId": null 
+        },
+        { 
+            "id": "ev-7", 
+            "timestamp": 1592438526418, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 7, 
+            "type": "INSERT", 
+            "fileId": "fileId-1", 
+            "character": "2", 
+            "previousNeighborId": "ev-6", 
+            "lineNumber": 1, 
+            "column": 2, 
+            "pastedEventId": null 
+        },
+        { 
+            "id": "ev-8", 
+            "timestamp": 1592438526526, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 8, 
+            "type": "INSERT", 
+            "fileId": "fileId-1", 
+            "character": "3", 
+            "previousNeighborId": "ev-7", 
+            "lineNumber": 1, 
+            "column": 3, 
+            "pastedEventId": null 
+        },
+        { 
+            "id": "ev-9", 
+            "timestamp": 1592438537419, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 9, 
+            "type": "CREATE FILE", 
+            "fileId": "fileId-2", 
+            "filePath": "/xyz.txt", 
+            "parentDirectoryId": "dirId-0" 
+        },
+        { 
+            "id": "ev-10", 
+            "timestamp": 1592438538663, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 10, 
+            "type": "INSERT", 
+            "fileId": "fileId-2", 
+            "character": "x", 
+            "previousNeighborId": null, 
+            "lineNumber": 1, 
+            "column": 1, 
+            "pastedEventId": null 
+        },
+        { 
+            "id": "ev-11", 
+            "timestamp": 1592438539247, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 11, 
+            "type": "INSERT", 
+            "fileId": "fileId-2", 
+            "character": "y", 
+            "previousNeighborId": "ev-10", 
+            "lineNumber": 1, 
+            "column": 2, 
+            "pastedEventId": null 
+        },
+        { 
+            "id": "ev-12", 
+            "timestamp": 1592438539802, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 12, 
+            "type": "INSERT", 
+            "fileId": "fileId-2", 
+            "character": "z", 
+            "previousNeighborId": "ev-11", 
+            "lineNumber": 1, 
+            "column": 3, 
+            "pastedEventId": null 
+        }
+    ]
+};
