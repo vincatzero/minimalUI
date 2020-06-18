@@ -23,6 +23,13 @@
             border: 1px solid #ccc;
             border-top: none;
             }
+            .highlight {
+                position:absolute;
+                z-index:20; /* place in a layer above anything with a lower z-index */
+                background-color:limegreen;
+                opacity: 20%;
+            }
+
         </style>
 
     <title>Experimental Playback UI</title>
@@ -32,9 +39,9 @@
         <div class="container-fluid">
             <!--Create Tabs-->
             <div class="tab">
-                <ul class="nav nav-tabs">
+                <ul class="nav nav-tabs" id="tabsList">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#Playback" role="tab" data-toggle="tab"><p id="fileName">file.js</p></a>
+                        <a class="nav-link active" href="#Playback" role="tab" data-toggle="tab"><p id="FirstTabLabel">file.js</p></a>
                     </li>
                   </ul>
             </div>
@@ -60,12 +67,17 @@
         <script src="largeEvents.js"></script>
 
         <script>
+
+            var allEditors = [];
+
             //make the div with the id, editor, an ace editor
             const editor = ace.edit("playbackWindow");
+            editor.setReadOnly(true);
             editor.setTheme("ace/theme/monokai");
             editor.setFontSize(16);
             editor.session.setMode("ace/mode/javascript");
             editor.setShowPrintMargin(false);
+            allEditors.push(editor);
         </script>
 
 
@@ -77,6 +89,7 @@
 
             //holds the ids of all the markers (highlights)
             let allHighlights = [];
+            var numFilesCreated = 0;
 
             //indicates whether the change can from the textarea not editing in ace
             let changeOutsideEditor = false;
@@ -145,9 +158,7 @@
                     //get the starting timestamp
                     const t0 = performance.now();
 
-                    let lastRow = editor.getSession().getLength();
-                    let lastCol = editor.getSession().getRowLength(lastRow)-1;
-                    editor.getSession().remove(new Range(0,0,lastRow,lastCol));
+                    editor.setValue("",0)
 
                     //get the ending timestamp
                     const t1 = performance.now();
@@ -221,8 +232,16 @@
                                 editor.getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber-1, nextEvent.column));
                             }
                         }
+                        else if (nextEvent.type == 'CREATE FILE')      
+                        {
+                            if (numFilesCreated == 0)
+                            {
+                                document.getElementById("FirstTabLabel").innerHTML = nextEvent.filePath;
+                            }
 
-                        
+
+                            numFilesCreated++;
+                        }                  
 
                         
                         //move the next event
