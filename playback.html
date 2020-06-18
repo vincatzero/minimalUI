@@ -155,13 +155,13 @@
                     //get the starting timestamp
                     const t0 = performance.now();
 
-                    editor.setValue("",0)
+                    editor.setValue("");
 
                     //get the ending timestamp
                     const t1 = performance.now();
 
                     //print the duration in ms
-                    console.log(`Duration ${(t1 - t0)} ms`);
+                    console.log(`Reset took: ${(t1 - t0)} ms`);
                 });
 
                 //add event handler to listen for changes to the slider
