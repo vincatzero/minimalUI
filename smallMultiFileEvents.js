@@ -156,6 +156,68 @@ const eventsObject = {
             "lineNumber": 1, 
             "column": 3, 
             "pastedEventId": null 
+        },
+        { 
+            "id": "ev-13", 
+            "timestamp": 1592439537419, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 13, 
+            "type": "CREATE FILE", 
+            "fileId": "fileId-3", 
+            "filePath": "/main.cpp", 
+            "parentDirectoryId": "dirId-0" 
+        },
+        { 
+            "id": "ev-14", 
+            "timestamp": 1592439538663, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 14, 
+            "type": "INSERT", 
+            "fileId": "fileId-3", 
+            "character": "i", 
+            "previousNeighborId": null, 
+            "lineNumber": 1, 
+            "column": 1, 
+            "pastedEventId": null 
+        },
+        { 
+            "id": "ev-15", 
+            "timestamp": 1592439539247, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 15, 
+            "type": "INSERT", 
+            "fileId": "fileId-3", 
+            "character": "n", 
+            "previousNeighborId": "ev-14", 
+            "lineNumber": 1, 
+            "column": 2, 
+            "pastedEventId": null 
+        },
+        { 
+            "id": "ev-16", 
+            "timestamp": 1592439539802, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 16, 
+            "type": "INSERT", 
+            "fileId": "fileId-3", 
+            "character": "t", 
+            "previousNeighborId": "ev-15", 
+            "lineNumber": 1, 
+            "column": 3, 
+            "pastedEventId": null 
+        },
+        { 
+            "id": "ev-17", 
+            "timestamp": 1592439639802, 
+            "createdByDevGroupId": "devGroupId-1", 
+            "eventSequenceNumber": 17, 
+            "type": "INSERT", 
+            "fileId": "fileId-3", 
+            "character": " ", 
+            "previousNeighborId": "ev-16", 
+            "lineNumber": 1, 
+            "column": 4, 
+            "pastedEventId": null 
         }
     ]
 };

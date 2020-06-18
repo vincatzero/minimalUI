@@ -72,8 +72,8 @@
         <!-- <script src="smallEvents.js"></script> -->
         <!-- <script src="mediumEvents.js"></script> -->
         <!-- <script src="largeEvents.js"></script> -->
-        <script src="largeMultiFileEvents.js"></script>
-        <!-- <script src="smallMultiFileEvents.js"></script> -->
+        <!-- <script src="largeMultiFileEvents.js"></script> -->
+        <script src="smallMultiFileEvents.js"></script>
 
         <script>
 
@@ -85,7 +85,7 @@
             editor.setTheme("ace/theme/monokai");
             editor.setFontSize(16);
             editor.setShowPrintMargin(false);
-            //allEditors.push(editor);
+            //allEditors.push(editor); 
 
             function CreateAceEditor(codeDiv, filePath, fileId)
             {
@@ -260,6 +260,7 @@
                         }
                         else if (nextEvent.type == 'CREATE FILE')      
                         {
+                            console.log(`adding to file to the ${numFilesCreated} existing files`);
                             if (numFilesCreated == 0)
                             {
                                 let filePath = nextEvent.filePath;
@@ -306,6 +307,7 @@
                             }
 
                             numFilesCreated++;
+                            console.log(`there are now ${numFilesCreated} files`);
                         }                  
 
                         
@@ -360,7 +362,22 @@
                         }
                         else if (nextEvent.type == "CREATE FILE")
                         {
-                            
+                            console.log(`deleting one of ${numFilesCreated} files`);
+                            if (numFilesCreated != 1)
+                            {
+                                //delete the editor that is no longer being used
+                                delete allEditors[nextEvent.fileId];
+
+                                //Delete the div in tabContent
+                                let tabPane = document.getElementById(`${nextEvent.fileId}-content`);
+                                tabPane.parentNode.removeChild(tabPane);
+
+                                //delete the tab from tabList
+                                let fileTab = document.getElementById(nextEvent.fileId);
+                                fileTab.parentNode.removeChild(fileTab);
+                            }
+                            numFilesCreated--;
+                            console.log(`there are ${numFilesCreated} files left`);
                         }
 
                         //move to the previous event
