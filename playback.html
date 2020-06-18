@@ -238,19 +238,23 @@
                             if (numFilesCreated == 0)
                             {
                                 let filePath = nextEvent.filePath;
+                                let extension = filePath.substr(filePath.lastIndexOf('.') + 1);
                                 let mode;
-                                
-                                if (filePath.endsWith(".js")){
-                                    mode = "ace/mode/javascript";
-                                }
-                                else if (filePath.endsWith("cpp")){
-                                    mode = "ace/mode/c_cpp"
+
+                                switch (extension) {
+                                    case "js":
+                                        mode = "ace/mode/javascript";                                        
+                                        break;
+                                    case "cpp":
+                                        mode = "ace/mode/c_cpp";
+                                        break;                                
+                                    default:
+                                        break;
                                 }
 
                                 editor.session.setMode(mode);
-                                document.getElementById("FirstTabLabel").innerHTML = nextEvent.filePath;
+                                document.getElementById("FirstTabLabel").innerHTML = filePath;
                             }
-
 
                             numFilesCreated++;
                         }                  
