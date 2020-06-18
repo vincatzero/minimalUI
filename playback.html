@@ -62,6 +62,8 @@
             </div>    
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ext-modelist.js" type="text/javascript" charset="utf-8"></script>
+
         <!-- <script src="smallEvents.js"></script> -->
         <!-- <script src="mediumEvents.js"></script> -->
         <script src="largeEvents.js"></script>
@@ -75,12 +77,9 @@
             editor.setReadOnly(true);
             editor.setTheme("ace/theme/monokai");
             editor.setFontSize(16);
-            //editor.session.setMode("ace/mode/javascript");
             editor.setShowPrintMargin(false);
             allEditors.push(editor);
         </script>
-
-
 
         <script>
 
@@ -238,21 +237,8 @@
                             if (numFilesCreated == 0)
                             {
                                 let filePath = nextEvent.filePath;
-                                let extension = filePath.substr(filePath.lastIndexOf('.') + 1);
-                                let mode;
+                                setMode(filePath);
 
-                                switch (extension) {
-                                    case "js":
-                                        mode = "ace/mode/javascript";                                        
-                                        break;
-                                    case "cpp":
-                                        mode = "ace/mode/c_cpp";
-                                        break;                                
-                                    default:
-                                        break;
-                                }
-
-                                editor.session.setMode(mode);
                                 document.getElementById("FirstTabLabel").innerHTML = filePath;
                             }
 
@@ -325,6 +311,14 @@
                 }
             }
 
+            //Sets the Ace editor to the correct mode to set correct syntax highlighting
+            function setMode(filePath){
+
+                let modelist = ace.require("ace/ext/modelist");
+                let mode = modelist.getModeForPath(filePath).mode;
+                editor.session.setMode(mode);
+            }
+
             function getEventDescription(event) {
                 //get the event type
                 let retVal = event.type;
@@ -347,5 +341,7 @@
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+  
+
     </body>
 </html>
