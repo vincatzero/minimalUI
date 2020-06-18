@@ -237,7 +237,7 @@
                             if (numFilesCreated == 0)
                             {
                                 let filePath = nextEvent.filePath;
-                                setMode(filePath);
+                                setMode(editor, filePath);
 
                                 document.getElementById("FirstTabLabel").innerHTML = filePath;
                             }
@@ -312,11 +312,11 @@
             }
 
             //Sets the Ace editor to the correct mode to set correct syntax highlighting
-            function setMode(filePath){
+            function setMode(thisEditor, filePath){
 
                 let modelist = ace.require("ace/ext/modelist");
                 let mode = modelist.getModeForPath(filePath).mode;
-                editor.session.setMode(mode);
+                thisEditor.session.setMode(mode);
             }
 
             function getEventDescription(event) {
