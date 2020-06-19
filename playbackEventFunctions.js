@@ -27,8 +27,8 @@ function deleteEvent(nextEvent){
     }
 }
 
-//when a createFileEvent is encounted while stepping forward
-//or a deleteFileEvent is encountred while stepping backwards
+//when a createFileEvent is encountered while stepping forward
+//or a deleteFileEvent is encountered while stepping backwards
 //this function is called to handle all necessary operations
 function createFileEvent(nextEvent){
     //console.log(`adding to file to the ${numFilesCreated} existing files`);
@@ -44,7 +44,7 @@ function createFileEvent(nextEvent){
         allEditors[nextEvent.fileId] = editor;
 
         //set the text of the tab to the file path of the file created
-        document.getElementById("FirstTabLabel").innerHTML = filePath;
+        document.getElementById("FirstTabLabel").innerHTML = nextEvent.filePath;
     }
     //if the current create file event is not the first encounted
     else
@@ -63,7 +63,7 @@ function createFileEvent(nextEvent){
 
         //setting the id of the tab for future access
         //allows for renaming of tabs in the event of a file name change
-        newLinkTag.id = `${nextEvent.fileId}-text`
+        newLinkTag.id = `${nextEvent.fileId}-text`;
 
         //points this tab to the Ace editor it will display
         //the div that this points to is created below
@@ -91,7 +91,7 @@ function createFileEvent(nextEvent){
         //adding the tab-pane class so the div can be displayed correctly by the newLinkTag
         contentPanel.classList.add("tab-pane");
         //give the codeDiv and unique id so Ace can work with it
-        codeDiv.id = `${nextEvent.fileId}-code`
+        codeDiv.id = `${nextEvent.fileId}-code`;
         //give the codeDiv the playbackWindow class
         //this is a style that specifies the height of the div
         //which is necessary for Ace to display code
@@ -104,13 +104,16 @@ function createFileEvent(nextEvent){
 
         //create a new editor pointing to the code div
         CreateAceEditor(codeDiv, nextEvent.filePath, nextEvent.fileId);
+
+        addFocusToTab(document.getElementById(`${nextEvent.fileId}-text`), document.getElementById(`${nextEvent.fileId}-content`));
     }
+    //increment the total number of files that have been created
     numFilesCreated++;
     //console.log(`there are now ${numFilesCreated} files`);
 }
 
-//when a createFileEvent is encounted while stepping backwards
-//or a deleteFileEvent is encounted while stepping forwards
+//when a createFileEvent is encountered while stepping backwards
+//or a deleteFileEvent is encountered while stepping forwards
 function deleteFileEvent(nextEvent){
     //console.log(`deleting one of ${numFilesCreated} files`);
     if (numFilesCreated != 1)
@@ -125,7 +128,26 @@ function deleteFileEvent(nextEvent){
         //delete the tab from tabList
         let fileTab = document.getElementById(nextEvent.fileId);
         fileTab.parentNode.removeChild(fileTab);
+
+        addFocusToTab(document.getElementById(`FirstTabLabel`), document.getElementById(`Playback`));
     }
+    //decrement the total number of files that have been created
     numFilesCreated--;
     //console.log(`there are ${numFilesCreated} files left`);
+}
+
+function addFocusToTab(tabToFocus, content)
+{
+    //remove active class from the old tab and content pane
+    currentActiveTab.classList.remove("active");
+    currentActiveContent.classList.remove("active");
+
+    //add active class to the new tab and content pane
+    tabToFocus.classList.add("active");
+    content.classList.add("active");
+
+    //update our global which stores the currently active tab and content pane
+    currentActiveTab = tabToFocus;
+    currentActiveContent = content;
+
 }
