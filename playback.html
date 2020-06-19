@@ -68,6 +68,8 @@
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js" type="text/javascript" charset="utf-8"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ext-modelist.js" type="text/javascript" charset="utf-8"></script>
+        <script src="playbackEventFunctions.js" type="text/javascript" charset="utf-8"></script>
+        <script src="aceEditorManager.js" type="text/javascript" charset="utf-8"></script>
 
         <!-- <script src="smallEvents.js"></script> -->
         <!-- <script src="mediumEvents.js"></script> -->
@@ -76,32 +78,8 @@
         <script src="smallMultiFileEvents.js"></script>
 
         <script>
-
             var allEditors = {};
-
-            //make the div with the id, editor, an ace editor
-            const editor = ace.edit("playbackWindow");
-            editor.setReadOnly(true);
-            editor.setTheme("ace/theme/monokai");
-            editor.setFontSize(16);
-            editor.setShowPrintMargin(false);
-            //allEditors.push(editor); 
-
-            function CreateAceEditor(codeDiv, filePath, fileId)
-            {
-                const tempEditor = ace.edit(codeDiv);
-                tempEditor.setReadOnly(true);
-                tempEditor.setTheme("ace/theme/monokai");
-                tempEditor.setFontSize(16);
-                tempEditor.setShowPrintMargin(false);
-
-                setEditorMode(tempEditor, filePath);
-                
-                allEditors[fileId] = tempEditor;
-
-                return allEditors[fileId];
-            }
-
+            editor = CreateAceEditor("playbackWindow", "","" );    
         </script>
 
         <script>
@@ -115,30 +93,6 @@
 
             //indicates whether the change can from the textarea not editing in ace
             let changeOutsideEditor = false;
-
-            /*
-             * Create a highlight (ace calls these 'markers')
-             */
-            function addHighlight(startRow, startColumn, endRow, endColumn) {
-                //create a marker in the right range
-                const marker = editor.getSession().addMarker(new Range(startRow, startColumn, endRow, endColumn), 'highlight', 'text', true);
-                
-                //add the id of the new marker so it can be cleared later
-                allHighlights.push(marker);
-            }
-
-             /*
-             * Function to clear all the highlights.
-             */
-            function clearHighlights() {
-                //go through the collection of marker ids
-                for(let i = 0;i < allHighlights.length;i++) {
-                    //remove the marker
-                    editor.getSession().removeMarker(allHighlights[i]);
-                }
-                //empty the collection of marker ids
-                allHighlights = [];
-            }
             
             //the position of the event to play next in the forward direction
             //this refers to an object loaded in the script above, 'eventsObject'
@@ -230,85 +184,23 @@
                 if(nextEventPosition < eventsObject.events.length) {
                     //holds the next event to animate
                     let nextEvent;
-                
-                    //get a reference to the playback window
-                    const playbackWindow = document.getElementById('playbackWindow');
 
                     const t0 = performance.now();
-
 
                     //go through the requested number of steps
                     for(let i = 0;i < numSteps;i++) {
                         //grab the next event to animate
                         nextEvent = eventsObject.events[nextEventPosition];
                         if (nextEvent.type == "INSERT"){
-                            if(nextEvent.character.length == 1){
-                                allEditors[nextEvent.fileId].getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, nextEvent.character);
-                            }
-                            else if (nextEvent.character == "NEWLINE"){
-                                allEditors[nextEvent.fileId].getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, '\n');
-                            }
-
+                           insertEvent(nextEvent);
                         }
                         else if (nextEvent.type == "DELETE"){
-                            if (nextEvent.character == "NEWLINE"){
-                                allEditors[nextEvent.fileId].getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber, 0));
-                            }
-                            else if (nextEvent.character.length == 1){
-                                allEditors[nextEvent.fileId].getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber-1, nextEvent.column));
-                            }
+                            deleteEvent(nextEvent);
                         }
                         else if (nextEvent.type == 'CREATE FILE')      
                         {
-                            console.log(`adding to file to the ${numFilesCreated} existing files`);
-                            if (numFilesCreated == 0)
-                            {
-                                let filePath = nextEvent.filePath;
-                                setEditorMode(editor, filePath);
-                                allEditors[nextEvent.fileId] = editor;
-
-                                document.getElementById("FirstTabLabel").innerHTML = filePath;
-                            }
-                            else
-                            {
-                                //Create a new tab
-                                const newListItem = document.createElement('li');
-                                newListItem.classList.add("nav-item");
-                                newListItem.id = nextEvent.fileId;
-                                
-                                const newLinkTag = document.createElement('a');
-                                newLinkTag.classList.add("nav-link");
-                                //newLinkTag.classList.add("active");
-                                newLinkTag.id = `${nextEvent.fileId}-text`
-
-                                newLinkTag.href = `#${nextEvent.fileId}-content`;
-                                newLinkTag.setAttribute("role", "tab");
-                                newLinkTag.setAttribute("data-toggle", "tab");
-
-                                newLinkTag.innerText = nextEvent.filePath;
-
-                                newListItem.appendChild(newLinkTag);
-                                tabsList.appendChild(newListItem);
-
-                                //create new divs to go in the new tab
-                                const contentPanel = document.createElement('div');
-                                const codeDiv = document.createElement('div');
-
-                                contentPanel.id = `${nextEvent.fileId}-content`;
-                                contentPanel.classList.add("tab-pane");
-                                codeDiv.id = `${nextEvent.fileId}-code`
-                                codeDiv.classList.add('playbackWindow');
-
-                                contentPanel.appendChild(codeDiv);
-                                tabContent.appendChild(contentPanel);
-
-                                //point an editor to the new div
-                                CreateAceEditor(codeDiv, nextEvent.filePath, nextEvent.fileId);
-                            }
-
-                            numFilesCreated++;
-                            console.log(`there are now ${numFilesCreated} files`);
-                        }                  
+                            createFileEvent(nextEvent); 
+                        }                 
 
                         
                         //move the next event
@@ -336,48 +228,20 @@
                     //direction I move it back by one position
                     nextEventPosition--;
 
-                    //get a reference to the playback window
-                    const playbackWindow = document.getElementById('playbackWindow');
-
                     //go through the requested number of steps
                     for(let i = 0;i < numSteps;i++) {
                         //grab the next event to de-animate
                         nextEvent = eventsObject.events[nextEventPosition];
 
                         if (nextEvent.type == "INSERT"){
-                            if (nextEvent.character == "NEWLINE"){
-                                allEditors[nextEvent.fileId].getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber, 0));
-                            }
-                            else if (nextEvent.character.length == 1){
-                                allEditors[nextEvent.fileId].getSession().remove(new Range(nextEvent.lineNumber-1, nextEvent.column-1,nextEvent.lineNumber-1, nextEvent.column));
-                            }
+                            deleteEvent(nextEvent);
                         }
                         else if (nextEvent.type == "DELETE"){
-                            if(nextEvent.character.length == 1){
-                                allEditors[nextEvent.fileId].getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, nextEvent.character);
-                            }
-                            else if (nextEvent.character == "NEWLINE"){
-                                allEditors[nextEvent.fileId].getSession().insert({row: nextEvent.lineNumber -1,column: nextEvent.column -1}, '\n');
-                            }
+                            insertEvent(nextEvent);
                         }
                         else if (nextEvent.type == "CREATE FILE")
                         {
-                            console.log(`deleting one of ${numFilesCreated} files`);
-                            if (numFilesCreated != 1)
-                            {
-                                //delete the editor that is no longer being used
-                                delete allEditors[nextEvent.fileId];
-
-                                //Delete the div in tabContent
-                                let tabPane = document.getElementById(`${nextEvent.fileId}-content`);
-                                tabPane.parentNode.removeChild(tabPane);
-
-                                //delete the tab from tabList
-                                let fileTab = document.getElementById(nextEvent.fileId);
-                                fileTab.parentNode.removeChild(fileTab);
-                            }
-                            numFilesCreated--;
-                            console.log(`there are ${numFilesCreated} files left`);
+                            deleteFileEvent(nextEvent);
                         }
 
                         //move to the previous event
@@ -396,30 +260,6 @@
                 }
             }
 
-            //Sets the Ace editor to the correct mode to set correct syntax highlighting
-            function setEditorMode(thisEditor, filePath){
-
-                let modelist = ace.require("ace/ext/modelist");
-                let mode = modelist.getModeForPath(filePath).mode;
-                thisEditor.session.setMode(mode);
-            }
-
-            function getEventDescription(event) {
-                //get the event type
-                let retVal = event.type;
-
-                //add some data specific to the event
-                if(event.type === 'CREATE DIRECTORY') {
-                    retVal += ` '${event.directoryPath}'`;
-                } else if(event.type === 'CREATE FILE') {
-                    retVal += ` '${event.filePath}'`;
-                } else if(event.type === 'INSERT' ||
-                          event.type === 'DELETE') {
-                    retVal += ` '${event.character}'`;
-                }
-
-                return retVal;
-            }
         </script>
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
